@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: miobe
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: miobe
+  template:
+    metadata:
+      labels:
+        app: miobe
+    spec:
+      containers:
+        - name: miobe
+          image: luca4k4/progetto_sistemi_cloud_backend:v1-release
+          ports:
+            - containerPort: 5000
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: password

@@ -1,0 +1,86 @@
+# Usata tecnica del Docker Multi-Stage Build
+
+# Installa NodeJS (avrà anche il gestore dei pacchetti npm)
+FROM node:14 as build-stage
+
+# Installa NodeJS, runtime engine di ViteJS e gestore pacchetti npm
+# RUN apt-get update && apt-get install -y nodejs npm
+
+WORKDIR /app
+
+# Copia il file package.json e package-lock.json nella directory di lavoro (copio l'intero contenuto della cartella)
+COPY package*.json ./
+
+# Copia tutto il contenuto del tuo progetto frontend nella directory di lavoro
+COPY . .
+
+# Da documentazione Vue:
+# It may seem redundant to first copy package.json and package-lock.json and then all project files and folders in two separate steps but there is actually a very good reason for that (spoiler: it allows us to take advantage of cached Docker layers).
+
+# Installa le dipendenze Node.js
+RUN npm install
+
+# Effettuo il building del frontend (il contenuto verrà messo nella cartella /dist)
+RUN npm run build
+
+FROM httpd:2 as production-stage
+# Copio i file generati dalla build di ViteJS nella directory web di Apache
+COPY --from=build-stage /app/dist /usr/local/apache2/htdocs/
+
+# Modifica la porta di Apache da 80 a 808
+RUN sed -i 's/Listen 80/Listen 808/' /usr/local/apache2/conf/httpd.conf
+
+# Copio le impostazioni del proxy inverso
+COPY ./proxy_inverso_apache.conf /usr/local/apache2/conf/extra/proxy_inverso_apache.conf
+
+# Abilita i moduli proxy e proxy_http
+RUN sed -i 's/#LoadModule proxy_module/LoadModule proxy_module/' /usr/local/apache2/conf/httpd.conf && \
+    sed -i 's/#LoadModule proxy_http_module/LoadModule proxy_http_module/' /usr/local/apache2/conf/httpd.conf
+
+# Aggiunge la configurazione del proxy inverso al file di configurazione principale
+RUN echo "Include /usr/local/apache2/conf/extra/proxy_inverso_apache.conf" >> /usr/local/apache2/conf/httpd.conf
+
+# Esponi la porta su cui verrà eseguito il frontend
+EXPOSE 808
+
+# Compila l'app frontend utilizzando Vite => In Sviluppo utilizzo: npm run dev
+# RUN npm run build
+
+# Definisci il comando per avviare l'app frontend
+#CMD ["npm", "run", "dev", "--", "--host"]
+
+# Avvia Apache
+CMD ["httpd", "-D", "FOREGROUND"]
+
+
+###################### Per avviare e gestire l'immagine ######################
+
+# Per compilarlo e creare l'immagine (se cambio il nome del dockerfile: -f dockerfile)
+# docker build -t miofe . 
+
+# Per avviarlo La prima Volta:
+# docker run -d --name miofe_c -p 808:808 miofe
+
+# Per interromperlo:
+# docker stop miofe_c
+
+# Per RIAVVIARLO:
+# docker start miofe_c
+
+# Per eliminare il container:
+# docker rm miofe_c
+
+# Per vedere i docker avviati:
+# docker ps (-a per vederli tutti)
+
+# Per vedere le porte aperte su windows
+# netstat -aon
+
+# Per vedere cosa accade dentro il container una volta che è eseguito:
+# docker exec -it miofe_c /bin/bash
+
+# Per mostrare l'hot reloading in funzione, è possibile accedere con il comando precedente, eseguire:
+# - apt update
+# - apt install nano
+# - modificare con nano il file Home.vue in /src/components
+# E' possibile avere hot reloading anche sui file locali utilizzando un "Volume" anonimo che si aggiorna in automatico

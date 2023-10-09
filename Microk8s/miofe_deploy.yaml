@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: miofe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: miofe
+  template:
+    metadata:
+      labels:
+        app: miofe
+    spec:
+      containers:
+        - name: miofe
+          image: luca4k4/progetto_sistemi_cloud_frontend:v1-release
+          ports:
+            - containerPort: 808

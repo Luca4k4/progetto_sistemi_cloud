@@ -1,0 +1,14 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: miofe
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app/miofe: "true"
+  podSelector:
+    matchLabels:
+      app/miofe: "true"

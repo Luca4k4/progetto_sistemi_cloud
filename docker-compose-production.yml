@@ -1,0 +1,44 @@
+services:
+    miodb:
+        image: luca4k4/progetto_sistemi_cloud_db:v1-release
+        environment:
+            MYSQL_ROOT_PASSWORD: password
+        ports:
+            - 3306:3306
+        networks:
+            - sistemicloud-net
+    miofe:
+        image: luca4k4/progetto_sistemi_cloud_frontend:v1-release
+        ports: 
+            - 808:808
+        networks:
+            - sistemicloud-net
+        depends_on:
+            - miobe
+    miobe:
+        image: luca4k4/progetto_sistemi_cloud_backend:v1-release
+        ports: 
+            - 5000:5000
+        networks:
+            - sistemicloud-net
+        depends_on:
+            - miodb
+        deploy:
+            replicas: 4
+
+networks:
+    sistemicloud-net:
+        external: true
+
+
+
+
+
+
+
+
+
+
+
+
+        

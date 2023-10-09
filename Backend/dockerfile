@@ -1,0 +1,59 @@
+FROM python:3.8
+
+# Imposta la directory di lavoro all'interno del contenitore
+WORKDIR /app
+
+# Copia l'intero contenuto del progetto nella directory di lavoro => Commentato, copio i singoli file
+# COPY . .
+
+# Copia il file app.py nella directory di lavoro
+COPY app.py .
+
+# Copia il file requirements.txt nella directory di lavoro
+COPY requirements.txt .
+
+# Installa le dipendenze Python
+RUN pip install -r requirements.txt
+
+# Esponi la porta su cui l'applicazione Flask ascolterà le richieste
+EXPOSE 5000
+
+# Definisci il comando per avviare l'applicazione Flask
+CMD ["python", "app.py"]
+
+###################### Per avviare e gestire l'immagine ######################
+
+# Per compilarlo e creare l'immagine (se cambio il nome del dockerfile: -f dockerfile)
+# docker build -t miobe .
+
+# PER DOCKER HUB Per compilarlo e creare l'immagine (se cambio il nome del dockerfile: -f dockerfile)
+# docker build -t miobe .
+# docker build -t luca4k4/progetto_sistemi_cloud_backend:v1 .
+
+# PER DOCKER HUB Inserisco il tag
+# docker tag luca4k4/progetto_sistemi_cloud_backend:v1 luca4k4/progetto_sistemi_cloud_backend:v1-release
+
+# PER DOCKER HUB Pusho su docker hub l'elemento con tag specifico
+# docker push luca4k4/progetto_sistemi_cloud_backend:v1-release
+
+
+# Per avviarlo La prima Volta:
+# docker run -d --net sistemi-cloud-net --name miobe_c -p 5000:5000 miobe
+
+# Per interromperlo:
+# docker stop miobe_c
+
+# Per RIAVVIARLO:
+# docker start miobe_c
+
+# Per eliminare il container:
+# docker rm miobe_c
+
+# Per vedere i docker avviati:
+# docker ps (-a per vederli tutti)
+
+# Per vedere le porte aperte su windows
+# netstat -aon
+
+# Per vedere cosa accade dentro il container una volta che è eseguito:
+# docker exec -it miobe_c /bin/bash

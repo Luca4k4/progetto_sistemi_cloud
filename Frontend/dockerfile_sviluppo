@@ -1,0 +1,55 @@
+# Installa NodeJS, runtime engine di ViteJS
+FROM node:14
+
+WORKDIR /app
+
+# Copia il file package.json e package-lock.json nella directory di lavoro (copio l'intero contenuto della cartella)
+# COPY package*.json ./
+
+# Copia tutto il contenuto del tuo progetto frontend nella directory di lavoro
+COPY . .
+
+# Installa le dipendenze Node.js
+RUN npm install
+
+# Esponi la porta su cui verrà eseguito il frontend
+EXPOSE 808
+
+# Compila l'app frontend utilizzando Vite => In Sviluppo utilizzo: npm run dev
+# RUN npm run build
+
+# Definisci il comando per avviare l'app frontend
+CMD ["npm", "run", "dev", "--", "--host"]
+
+
+###################### Per avviare e gestire l'immagine ######################
+
+# Per compilarlo e creare l'immagine (se cambio il nome del dockerfile: -f dockerfile)
+# docker build -t miofe . 
+
+# Per avviarlo La prima Volta:
+# docker run -d --name miofe_c -p 808:808 miofe
+
+# Per interromperlo:
+# docker stop miofe_c
+
+# Per RIAVVIARLO:
+# docker start miofe_c
+
+# Per eliminare il container:
+# docker rm miofe_c
+
+# Per vedere i docker avviati:
+# docker ps (-a per vederli tutti)
+
+# Per vedere le porte aperte su windows
+# netstat -aon
+
+# Per vedere cosa accade dentro il container una volta che è eseguito:
+# docker exec -it miofe_c /bin/bash
+
+# Per mostrare l'hot reloading in funzione, è possibile accedere con il comando precedente, eseguire:
+# - apt update
+# - apt install nano
+# - modificare con nano il file Home.vue in /src/components
+# E' possibile avere hot reloading anche sui file locali utilizzando un "Volume" anonimo che si aggiorna in automatico

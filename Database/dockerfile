@@ -1,0 +1,49 @@
+# Utilizzo come immagine di partenza l'ultima versione dell'immagine 
+#   presente nel docker hub 'mysql'
+FROM mysql:latest
+
+RUN chown -R mysql:root /var/lib/mysql/
+
+# Imposto le variabili d'ambiente, sono visionabili con "docker inspect" 
+#   e modificabili all'avvio con: docker run --env CHIAVE=valore
+
+ENV MYSQL_DATABASE="progetto_sistemi_cloud"
+ENV MYSQL_UTENTE="root"
+ENV MYSQL_ROOT_PASSWORD="password"
+
+# Ciò che è presente nella cartella remota "/docker-entrypoint-initdb.d" verrà eseguito da Docker
+COPY ./inizializza_db.sql /docker-entrypoint-initdb.d
+
+# Espongo la porta di default di MySQL
+EXPOSE 3306
+
+# Apro il deamon di MySQL
+CMD ["mysqld"]
+
+###################### Per avviare e gestire l'immagine ######################
+
+# Per compilarlo e creare l'immagine (se cambio il nome del dockerfile: -f dockerfile)
+# docker build -t miodb . 
+
+# Per avviarlo la prima volta (se desiderassi passare la password direttamente qui: -e MYSQL_ROOT_PASSWORD=password):
+# docker run -d --net sistemi-cloud-net --name miodb_c -p 3306:3306 miodb
+
+# A questo punto vi si può accedere con DBeaver ad esempio
+
+# Per interromperlo:
+# docker stop miodb_c
+
+# Per RIAVVIARLO:
+# docker start miodb_c
+
+# Per eliminare il container:
+# docker rm miodb_c
+
+# Per vedere i docker avviati:
+# docker ps (-a per vederli tutti)
+
+# Per vedere le porte aperte su windows
+# netstat -aon
+
+# Per vedere cosa accade dentro il container una volta che è eseguito:
+# docker exec -it miodb_c /bin/bash

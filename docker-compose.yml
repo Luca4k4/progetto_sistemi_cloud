@@ -1,0 +1,45 @@
+# Questo file è utilizzato da docker compose in fase di sviluppo usando il proprio pc come singolo host.
+# Utilizzare invece docker-compose-production.yml per il multi-host con, ad esempio, swarm
+services: 
+    miodb:
+        container_name: miodb_c
+        build:
+            context: ./Database
+        environment:
+            MYSQL_ROOT_PASSWORD: password
+        ports:
+            - 3306:3306
+        networks:
+            - sistemi-cloud-net
+    miofe:
+        container_name: miofe_c
+        build:
+            context: ./Frontend
+        ports: 
+            - 808:808
+        networks:
+            - sistemi-cloud-net
+        depends_on:
+            - miobe
+    miobe:
+        container_name: miobe_c
+        build:
+            context: ./Backend
+        ports: 
+            - 5000:5000
+        networks:
+            - sistemi-cloud-net
+        depends_on:
+            - miodb
+        #deploy:
+            # mode: replicated
+            # replicas: 6 # Se si desidera aggiungere delle repliche (non fattibile, la porta 5000 dovrà essere unica)
+            # resources: # Se si vogliono limitare le risorse
+            #    limits:
+            #        cpus: '0.2'
+            #        memory: 70M
+            #        pids: 20
+
+networks:
+    sistemi-cloud-net:
+        driver: bridge
